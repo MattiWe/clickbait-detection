@@ -102,3 +102,4 @@ ENV/
 
 # dataset
 clickbait17-train-170331/*
+annotations.jsonl
