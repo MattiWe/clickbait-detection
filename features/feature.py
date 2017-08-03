@@ -3,6 +3,7 @@ import numpy as np
 import json
 from itertools import combinations
 from collections import deque
+from collections import Counter
 
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk import word_tokenize
@@ -14,6 +15,7 @@ from sklearn import svm
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 lemmatizer = WordNetLemmatizer()
 tknzr = TweetTokenizer(strip_handles=True, reduce_len=True)
@@ -34,9 +36,9 @@ def pos_tokenize(text):
 def preprocess(string):
     global lemmatizer
     string = string.lower()
-    string = lemmatizer.lemmatize(string)
     if string.endswith("'s"):
         string = string[:-2]
+    string = lemmatizer.lemmatize(string)
     return string
 
 
@@ -83,16 +85,18 @@ class ClickbaitDataset(object):
 class Feature(object):
     def __init__(self, data):
         self.data = data
+        self.feature = None
 
     def aslist(self):
         return []
 
     def assparse(self):
-        return scipy.sparse.csc_matrix((self.data.size(), 1))
+        return scipy.sparse.csc_matrix(self.feature)
 
 
 class NGramFeature(Feature):
-    def __init__(self, data, vectorizer, n=None, o=None):
+    # TODO get() method, so only compute when building a matrix with this feature
+    def __init__(self, data, vectorizer, analyzer='word', n=None, o=None):
         self.data = data
         if n is None:
             n, o = 1, 1
@@ -101,15 +105,34 @@ class NGramFeature(Feature):
         self.vectorizer = vectorizer(preprocessor=preprocess, tokenizer=tokenize, ngram_range=(n, o))
         self.feature = self.vectorizer.fit_transform(self.data.get_x_posttext())
 
+    #def assparse(self):
+    #    return scipy.sparse.csc_matrix(self.feature)
+
+
+class ContainsWordsFeature(Feature):
+
+    def __init__(self, data, wordlist, whole_words=True, ratio=False):
+        if isinstance(wordlist, str):
+            with open(wordlist, "r") as inf:
+                wordlist = [x.strip() for x in inf.readlines()]
+        _result = deque()
+        for tweet in data:
+            _tmp = 0
+            _wc = 0
+            if whole_words:
+                for word in preprocess_tokenize(tweet):
+                    if word in wordlist:
+                        _tmp += 1
+                    _wc += 1
+            elif not whole_words:
+                ctr = Counter(tweet)
+                for word in wordlist:
+                    _tmp += ctr['word']
+            _result.append(_tmp if not ratio else _tmp / _wc)
+        self.feature = list(_result)
+
     def assparse(self):
-        return scipy.sparse.csc_matrix(self.feature)
-
-
-class SingleVectorFeature(Feature):
-
-    def __init__(self):
-        # cb_feat_wordlength[:, np.newaxis]
-        pass
+        return np.asarray(self.feature)
 
 
 class FeatureBuilder(object):
@@ -168,7 +191,10 @@ class FeatureBuilder(object):
         _x, _y = self.build()
         list_of_features = [scipy.sparse.csc_matrix(_x[:, x]) for x in range(_x.shape[1])]
 
-        list_of_mse = [learn(x, _y) for x in list_of_features]
+        list_of_mse = [learn(x, _y) for x in list_of_features[:100]]
+        print(sorted(list_of_mse)[:10])
+        print(sorted(list_of_mse)[-10:])
+        # list_of_covariance =
 
         print(list_of_mse)
         '''_result = deque()
@@ -186,20 +212,17 @@ class FeatureBuilder(object):
 if __name__ == "__main__":
     # get list of scores and a list of the postTexts
     cbd = ClickbaitDataset("../clickbait17-train-170331/instances.jsonl", "../clickbait17-train-170331/truth.jsonl")
-    f = NGramFeature(data=cbd, vectorizer=CountVectorizer, n=1)
-    print(f.assparse().shape)
+    char_3grams = NGramFeature(data=cbd, vectorizer=TfidfVectorizer, o=3, analyzer='char')
+    word_3grams = NGramFeature(data=cbd, vectorizer=TfidfVectorizer, o=3)
+    # stop_word_count = ContainsWordsFeature(data, wordlist, whole_words=True, ratio=False)
+    stop_word_ratio = ContainsWordsFeature(cbd.get_x_posttext(), "wordlists/TerrierStopWordList.txt", ratio=True)
+    easy_words_ratio = ContainsWordsFeature(cbd.get_x_posttext(), "wordlists/DaleChallEasyWordList.txt", ratio=True)
 
-    '''x_train, x_test, y_train, y_test = FeatureBuilder(cbd).add_feature("charonegramcount", f) \
-                                                          .add_feature('test', f.assparse())  \
-                                                          .build(split=True)
-    '''
-    x, y = FeatureBuilder(cbd).add_feature("charonegramcount", f) \
+    x, y = FeatureBuilder(cbd).add_feature("char_1grams", char_3grams) \
+                              .add_feature("word_1grams", word_3grams) \
+                              .add_feature("stop_word_ratio", stop_word_ratio) \
+                              .add_feature("easy_words_ratio", easy_words_ratio) \
                               .build()
-    print(x.shape)
-    feature_combinations = FeatureBuilder(cbd).add_feature("charonegramcount", f) \
-                                              .get_combinations(1, 2)
-
-    # print(x_train.shape)
-    print(len(feature_combinations))
-    '''
-    '''
+    # print(x.shape)
+    # feature_combinations = FeatureBuilder(cbd).add_feature("charonegramcount", f) \
+    #                                          .get_combinations(1, 2)
