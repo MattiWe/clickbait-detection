@@ -11,9 +11,13 @@ import string
 
 import scipy.sparse
 from sklearn import svm
-from sklearn.metrics import mean_squared_error
+import sklearn.metrics as skm
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor
 
 lemmatizer = WordNetLemmatizer()
 tknzr = TweetTokenizer(strip_handles=True, reduce_len=True)
@@ -46,6 +50,73 @@ def preprocess_tokenize(text):
         yield token
 
 
+def normalized_mean_squared_error(truth, predictions):
+    norm = skm.mean_squared_error(truth, np.full(len(truth), np.mean(truth)))
+    return skm.mean_squared_error(truth, predictions) / norm
+
+
+class ClickbaitModel(object):
+    regression_measures = {'Explained variance': skm.explained_variance_score,
+                           'Mean absolute error': skm.mean_absolute_error,
+                           'Mean squared error': skm.mean_squared_error,
+                           'Median absolute error': skm.median_absolute_error,
+                           'R2 score': skm.r2_score,
+                           'Normalized mean squared error': normalized_mean_squared_error}
+
+    classification_measures = {'Accuracy': skm.accuracy_score,
+                               'Precision': skm.precision_score,
+                               'Recall': skm.recall_score,
+                               'F1 score': skm.f1_score}
+
+    def __init__(self, data):
+        self.data = data
+        self.models = {"LogisticRegression": LogisticRegression(),
+                       "MultinomialNB": MultinomialNB(),
+                       "RandomForestClassifier": RandomForestClassifier(),
+                       "SVR": svm.SVR(),
+                       "RandomForestRegressor": RandomForestRegressor()}
+        self.model_trained = None
+
+    def classify(self, features, model, evaluate=True):
+        if isinstance(model, str):
+            self.model_trained = self.model[model]
+        else:
+            self.model_trained = model
+        if evaluate:
+            x_train, x_test, y_train, y_test = train_test_split(features, self.data.get_y_class().T, random_state=42)
+        else:
+            x_train = features
+            y_train = data.get_y_class()
+
+        self.model_trained.fit(x_train, y_train)
+
+        if evaluate:
+            y_predicted = self.model_trained.predict(x_test)
+            for cm in classification_measures:
+                print("{}: {}".format(cm, classification_measures[name](y_test, y_predicted)))
+
+    def regress(self, features, model, evaluate=True):
+        if isinstance(model, str):
+            self.model_trained = self.model[model]
+        else:
+            self.model_trained = model
+        if evaluate:
+            x_train, x_test, y_train, y_test = train_test_split(features, self.data.get_y_class().T, random_state=42)
+        else:
+            x_train = features
+            y_train = data.get_y_class()
+
+        self.model_trained.fit(x_train, y_train)
+
+        if evaluate:
+            y_predicted = self.model_trained.predict(x_test)
+            for rm in regression_measures:
+                print("{}: {}".format(rm, classification_measures[name](y_test, y_predicted)))
+
+    def predict(self, x):
+        return self.model_trained.predict(x)
+
+
 class ClickbaitDataset(object):
     # TODO switch to pandas
     def __init__(self, instances_path, truth_path):
@@ -64,11 +135,15 @@ class ClickbaitDataset(object):
                                           'targetCaptions': i['targetCaptions']}
         for t in _truth:
             self.dataset_dict[t['id']]['truthMean'] = t['truthMean']
+            self.dataset_dict[t['id']]['truthClass'] = t['truthClass']
 
         self.id_index = {index: key for index, key in enumerate(self.dataset_dict.keys())}
 
     def get_y(self):
         return np.asarray([self.dataset_dict[self.id_index[key]]['truthMean'] for key in sorted(self.id_index.keys())])
+
+    def get_y_class(self):
+        return np.asarray([self.dataset_dict[self.id_index[key]]['truthClass'] for key in sorted(self.id_index.keys())])
 
     # TODO generic for all columns
     def get_x_posttext(self):
@@ -103,13 +178,6 @@ class NGramFeature(Feature):
 
     def assparse(self):
         return scipy.sparse.csc_matrix(self.feature)
-
-
-class SingleVectorFeature(Feature):
-
-    def __init__(self):
-        # cb_feat_wordlength[:, np.newaxis]
-        pass
 
 
 class FeatureBuilder(object):
@@ -193,13 +261,14 @@ if __name__ == "__main__":
                                                           .add_feature('test', f.assparse())  \
                                                           .build(split=True)
     '''
-    x, y = FeatureBuilder(cbd).add_feature("charonegramcount", f) \
-                              .build()
-    print(x.shape)
+    x_train, x_test, y_train, y_test = FeatureBuilder(cbd).add_feature("charonegramcount", f) \
+                                                          .build()
+
+
+    '''
     feature_combinations = FeatureBuilder(cbd).add_feature("charonegramcount", f) \
                                               .get_combinations(1, 2)
 
     # print(x_train.shape)
     print(len(feature_combinations))
-    '''
     '''
