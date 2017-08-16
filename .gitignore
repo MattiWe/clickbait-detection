@@ -102,4 +102,9 @@ ENV/
 
 # dataset
 clickbait17-train-170331/*
+clickbait17-test-170729/*
+clickbait17-validation-170616/*
+clickbait17-validation-170630/*
+metastore_db/*
+old/*
 annotations.jsonl
