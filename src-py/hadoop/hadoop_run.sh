@@ -14,7 +14,7 @@ hadoop jar "$HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-2.7.2.jar" \
        -file $mapper -mapper $mapper \
        -file $reducer -reducer $reducer \
        -input $input_directory \
-       -output $out_directory \
+       -output $out_directory \ # numebred
        -D mapred.reduce.tasks=100
 
 # 3. fetch results and update input files

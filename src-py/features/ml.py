@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import numpy as np
 from sklearn import svm
 import sklearn.metrics as skm
 from sklearn.linear_model import LogisticRegression
@@ -6,6 +7,8 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
+import scipy.sparse
+import time
 
 
 def normalized_mean_squared_error(truth, predictions):
@@ -45,16 +48,37 @@ class ClickbaitModel(object):
             x_train = x
             y_train = y
 
+        # remove some of the dominating class
+        nr_ones = np.sum(y_train)
+        nr_zeroes = len(y_train) - np.sum(y_train)
+        keep_indices = list(range(len(y_train)))
+        remove_indices = []
+        while abs(nr_ones - nr_zeroes) - len(remove_indices) != 0:
+            index = np.random.randint(len(y_train))
+            if (y_train[index] == 0 and nr_ones < nr_zeroes) or \
+                (y_train[index] == 1 and nr_ones > nr_zeroes):
+                y_train = np.delete(y_train, index)
+                remove_indices.append(index)
+                del keep_indices[index]
+
+        x_train = x_train[keep_indices]
+
+        # supersample clickbait class
+        '''while np.sum(y_train) != len(y_train) - np.sum(y_train):
+            index = np.random.randint(len(y_train))
+            if (y_train[index] == 1 and nr_ones < nr_zeroes) or \
+                (y_train[index] == 0 and nr_ones > nr_zeroes):
+                y_train = np.append(y_train, y_train[index])
+                x_train = scipy.sparse.vstack((x_train, x_train[index]))
+        print(y_train.shape)
+        print(x_train.shape)'''
+
         self.model_trained.fit(x_train, y_train)
 
         if evaluate:
-            y_predicted = self.model_trained.predict(x_train)
-            y_scores = self.model_trained.predict_proba(x_test)
-            for cm in self.__classification_measures:
-                print("{}: {}".format(cm, self.__classification_measures[cm](y_train, y_predicted)))
-            print("ROC-AUC: {}".format(skm.roc_auc_score(y_train, y_predicted)))
+            self.eval_classify(y_test, self.model_trained.predict(x_test))
 
-    def regress(self, features, model, evaluate=True):
+    def regress(self, x, y, model, evaluate=True):
         if isinstance(model, str):
             self.model_trained = self.models[model]
         else:
@@ -62,8 +86,8 @@ class ClickbaitModel(object):
         if evaluate:
             x_train, x_test, y_train, y_test = train_test_split(features, self.data.get_y_class().T, random_state=42)
         else:
-            x_train = features
-            y_train = data.get_y_class()
+            x_train = x
+            y_train = y
 
         self.model_trained.fit(x_train, y_train)
 
@@ -78,7 +102,12 @@ class ClickbaitModel(object):
     def eval_classify(self, y_test, y_predicted):
         for cm in self.__classification_measures:
             print("{}: {}".format(cm, self.__classification_measures[cm](y_test, y_predicted)))
+        print("ROC-AUC: {}".format(skm.roc_auc_score(y_test, y_predicted)))
 
     def eval_regress(self, y_test, y_predicted):
-        for rm in __regression_measures:
+        for rm in self.__regression_measures:
             print("{}: {}".format(rm, self.__regression_measures[rm](y_test, y_predicted)))
+
+
+if __name__ == "__main__":
+    pass

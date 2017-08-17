@@ -56,15 +56,20 @@ class Feature(object):
 
 class NGramFeature(Feature):
     # TODO get() method, so only compute when building a matrix with this feature
-    def __init__(self, vectorizer, analyzer='word', n=None, o=None):
+    def __init__(self, vectorizer, analyzer='word', n=None, o=None, fit_data=None):
         if n is None:
             n, o = 1, 1
         elif o is None:
             o = n
         self.vectorizer = vectorizer(preprocessor=preprocess, tokenizer=tokenize, ngram_range=(n, o))
+        if fit_data is not None:
+            self.vectorizer_fit = self.vectorizer.fit(fit_data)
+
+    def fit(self, data):
+        self.vectorizer_fit = self.vectorizer.fit(data)
 
     def assparse(self, data):
-        return csc_matrix(self.vectorizer.fit_transform(data))
+        return csc_matrix(self.vectorizer_fit.transform(data))
 
 
 class ContainsWordsFeature(Feature):

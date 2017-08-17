@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 from scipy.sparse import hstack
 from features.feature import Feature
+from sklearn.model_selection import train_test_split
+import numpy as np
 
 
 class FeatureBuilder(object):
@@ -38,3 +40,7 @@ class FeatureBuilder(object):
         _feat, _val = self.build(_features=[self.features[f] for f in args])
         return train_test_split(_feat, np.asarray(_val).T, random_state=42)
     '''
+
+
+if __name__ == "__main__":
+    pass
