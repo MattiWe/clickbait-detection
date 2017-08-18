@@ -108,3 +108,5 @@ clickbait17-validation-170630/*
 metastore_db/*
 old/*
 annotations.jsonl
+*.npz
+*.pdf
