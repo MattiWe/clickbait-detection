@@ -8,6 +8,11 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from copy import deepcopy
 import scipy.sparse
+import sys
+import json
+import pickle
+
+# print(sys.argv)
 
 # get list of scores and a list of the postTexts
 cbd = ClickbaitDataset("../clickbait17-validation-170630/instances.jsonl", "../clickbait17-validation-170630/truth.jsonl")
@@ -30,25 +35,32 @@ f_builder = FeatureBuilder((char_3grams, 'postText'),
                            (mentions_count, 'postText'),
                            (hashtags_count, 'postText'),
                            (clickbait_phrases_count, 'postText'))
-x, x2, y, y2 = f_builder.build(cbd, split=True)
 
+# x, x2, y, y2 = f_builder.build(cbd, split=True)
+x = f_builder.build(cbd)
+y = cbd.get_y()
 # save for hadoop task
-scipy.sparse.save_npz("x_train", x)
-np.savez("y_train", data=y.data, shape=y.shape)
-scipy.sparse.save_npz("x_test", x2)
-np.savez("y_test", data=y2.data, shape=y2.shape)
+# scipy.sparse.save_npz("x_train", x)
+# np.savez("y_train", data=y.data, shape=y.shape)
+# scipy.sparse.save_npz("x_test", x2)
+# np.savez("y_test", data=y2.data, shape=y2.shape)
 
-y = np.asarray([0 if t < 0.5 else 1 for t in y])
-y2 = np.asarray([0 if t < 0.5 else 1 for t in y2])
-
-print("ones: {}, zeroes: {}".format(np.sum(y), len(y) - np.sum(y)))
+# y = np.asarray([0 if t < 0.5 else 1 for t in y])
+# y2 = np.asarray([0 if t < 0.5 else 1 for t in y2])
 
 # Test classification
 cbm = ClickbaitModel()
-cbm.classify(x, y, "RandomForestClassifier", evaluate=False)
+cbm.regress(x, y, "RandomForestRegressor", evaluate=False)
 
-ev_function = cbm.eval_classify
+# save needed data
+c3g = char_3grams.vectorizer_fit
+w3g = word_3grams.vectorizer_fit
+pickle.dump(c3g, open("c3g.pkl", 'wb'))
+pickle.dump(w3g, open("w3g.pkl", 'wb'))
+cbm.save("cbm_rfr.pkl")
+'''
 # metrics
+ev_function = cbm.eval_classify
 print("\n real predictions")
 y_predict = cbm.predict(x2)
 ev_function(y2, y_predict)
@@ -57,7 +69,7 @@ print("\n shuffeled")
 y_predict = deepcopy(y2)
 np.random.shuffle(y_predict)
 ev_function(y2, y_predict)
-
+'''
 
 '''_id = 608310377143799810
 _txt = ["U.S. Soccer should start answering tough questions about Hope Solo, @eric_adelson writes."]

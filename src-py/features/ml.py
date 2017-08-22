@@ -7,6 +7,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
+from sklearn.externals import joblib
 import scipy.sparse
 import time
 
@@ -107,6 +108,12 @@ class ClickbaitModel(object):
     def eval_regress(self, y_test, y_predicted):
         for rm in self.__regression_measures:
             print("{}: {}".format(rm, self.__regression_measures[rm](y_test, y_predicted)))
+
+    def save(self, filename):
+        joblib.dump(self.model_trained, filename)
+
+    def load(self, filename):
+        self.model_trained = joblib.load(filename)
 
 
 if __name__ == "__main__":
