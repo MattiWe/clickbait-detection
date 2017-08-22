@@ -105,6 +105,7 @@ clickbait17-train-170331/*
 clickbait17-test-170729/*
 clickbait17-validation-170616/*
 clickbait17-validation-170630/*
+clickbait17-testsample-170720/*
 metastore_db/*
 old/*
 annotations.jsonl
