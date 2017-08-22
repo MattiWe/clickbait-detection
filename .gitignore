@@ -110,3 +110,4 @@ old/*
 annotations.jsonl
 *.npz
 *.pdf
+*.pkl
