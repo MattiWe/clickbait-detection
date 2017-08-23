@@ -2,6 +2,7 @@
 import scipy.sparse
 import numpy as np
 import sys
+import json
 sys.path.append('..')
 from features import feature as ft
 from features.feature_builder import FeatureBuilder
@@ -39,3 +40,8 @@ scipy.sparse.save_npz("x_train", x)
 np.savez("y_train", data=y.data, shape=y.shape)
 scipy.sparse.save_npz("x_test", x2)
 np.savez("y_test", data=y2.data, shape=y2.shape)
+
+with open("initial_feature_select.jsonl", 'w') as of:
+    for i in range(10):
+        of.write(json.dumps({"selectedFeatures": [1]*int(x.shape[1]), "runs": []}))
+        of.write("\n")
