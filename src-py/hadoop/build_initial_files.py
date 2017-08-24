@@ -33,15 +33,24 @@ f_builder = FeatureBuilder((char_3grams, 'postText'),
                            (mentions_count, 'postText'),
                            (hashtags_count, 'postText'),
                            (clickbait_phrases_count, 'postText'))
-x, x2, y, y2 = f_builder.build(cbd, split=True)
+x_train, x_test, y, y2 = f_builder.build(cbd, split=True)
 
+x_train = scipy.sparse.csc_matrix(x_train)
+x_test = scipy.sparse.csc_matrix(x_test)
 # save for hadoop task
-scipy.sparse.save_npz("x_train", x)
+# scipy.sparse.save_npz("x_train", x)
+np.savez("x_train", data=x_train.data, indices=x_train.indices, indptr=x_train.indptr, shape=x_train.shape)
 np.savez("y_train", data=y.data, shape=y.shape)
-scipy.sparse.save_npz("x_test", x2)
+# scipy.sparse.save_npz("x_test", x2)
+np.savez("x_test", data=x_test.data, indices=x_test.indices, indptr=x_test.indptr, shape=x_test.shape)
 np.savez("y_test", data=y2.data, shape=y2.shape)
 
+
+x_train_arrays = np.load("x_train.npz")
+x_train = scipy.sparse.csc_matrix((x_train_arrays['data'], x_train_arrays['indices'], x_train_arrays['indptr']), shape=x_train_arrays['shape'])
+
+
 with open("initial_feature_select.jsonl", 'w') as of:
-    for i in range(10):
-        of.write(json.dumps({"selectedFeatures": [1]*int(x.shape[1]), "runs": []}))
+    for i in range(1000):
+        of.write(json.dumps({"selectedFeatures": [1]*int(x_train.shape[1]), "runs": []}))
         of.write("\n")
