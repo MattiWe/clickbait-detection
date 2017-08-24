@@ -6,6 +6,11 @@ from features.ml import ClickbaitModel
 from features.dataset import ClickbaitDataset
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import Ridge
+from sklearn.linear_model import Lars
+from sklearn.linear_model import OrthogonalMatchingPursuit
+from sklearn.linear_model import BayesianRidge
+from sklearn.linear_model import ARDRegression
 from copy import deepcopy
 import scipy.sparse
 import sys
@@ -36,9 +41,9 @@ f_builder = FeatureBuilder((char_3grams, 'postText'),
                            (hashtags_count, 'postText'),
                            (clickbait_phrases_count, 'postText'))
 
-# x, x2, y, y2 = f_builder.build(cbd, split=True)
-x = f_builder.build(cbd)
-y = cbd.get_y()
+x, x2, y, y2 = f_builder.build(cbd, split=True)
+# x = f_builder.build(cbd)
+# y = cbd.get_y()
 # save for hadoop task
 # scipy.sparse.save_npz("x_train", x)
 # np.savez("y_train", data=y.data, shape=y.shape)
@@ -50,26 +55,58 @@ y = cbd.get_y()
 
 # Test classification
 cbm = ClickbaitModel()
-cbm.regress(x, y, "RandomForestRegressor", evaluate=False)
+ev_function = cbm.eval_regress
 
+print("\n Ridge")
+cbm.regress(x, y, Ridge(alpha=3.5, solver="sag"), evaluate=False)
+y_predict = cbm.predict(x2)
+ev_function(y2, y_predict)
+
+'''
+print("\n RandomForestRegressor")
+cbm.regress(x, y, "RandomForestRegressor", evaluate=False)
+y_predict = cbm.predict(x2)
+ev_function(y2, y_predict)
+
+print("\n ElasticNet")
+cbm.regress(x, y, "ElasticNet", evaluate=False)
+y_predict = cbm.predict(x2)
+ev_function(y2, y_predict)
+
+print("\n Lasso")
+cbm.regress(x, y, "Lasso", evaluate=False)
+y_predict = cbm.predict(x2)
+ev_function(y2, y_predict)
+
+print("\n SGDRegressor")
+cbm.regress(x, y, "SGDRegressor", evaluate=False)
+y_predict = cbm.predict(x2)
+ev_function(y2, y_predict)
+
+print("\n SVR")
+cbm.regress(x, y, "SVR", evaluate=False)
+y_predict = cbm.predict(x2)
+ev_function(y2, y_predict)
+
+print("\n SVR_linear")
+cbm.regress(x, y, "SVR_linear", evaluate=False)
+y_predict = cbm.predict(x2)
+ev_function(y2, y_predict)'''
+'''
 # save needed data
 c3g = char_3grams.vectorizer_fit
 w3g = word_3grams.vectorizer_fit
 pickle.dump(c3g, open("c3g.pkl", 'wb'))
 pickle.dump(w3g, open("w3g.pkl", 'wb'))
 cbm.save("cbm_rfr.pkl")
-'''
 # metrics
-ev_function = cbm.eval_classify
-print("\n real predictions")
-y_predict = cbm.predict(x2)
-ev_function(y2, y_predict)
 
 print("\n shuffeled")
 y_predict = deepcopy(y2)
 np.random.shuffle(y_predict)
 ev_function(y2, y_predict)
 '''
+
 
 '''_id = 608310377143799810
 _txt = ["U.S. Soccer should start answering tough questions about Hope Solo, @eric_adelson writes."]

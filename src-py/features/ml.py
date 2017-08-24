@@ -3,6 +3,10 @@ import numpy as np
 from sklearn import svm
 import sklearn.metrics as skm
 from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import Ridge
+from sklearn.linear_model import Lasso
+from sklearn.linear_model import ElasticNet
+from sklearn.linear_model import SGDRegressor
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import RandomForestRegressor
@@ -34,7 +38,12 @@ class ClickbaitModel(object):
         self.models = {"LogisticRegression": LogisticRegression(),
                        "MultinomialNB": MultinomialNB(),
                        "RandomForestClassifier": RandomForestClassifier(),
+                       "SVR_linear": svm.SVR(kernel='linear'),
                        "SVR": svm.SVR(),
+                       "Ridge": Ridge(alpha=1.0, solver="auto"),
+                       "Lasso": Lasso(),
+                       "ElasticNet": ElasticNet(),
+                       "SGDRegressor": SGDRegressor(),
                        "RandomForestRegressor": RandomForestRegressor()}
         self.model_trained = None
 
@@ -49,6 +58,7 @@ class ClickbaitModel(object):
             x_train = x
             y_train = y
 
+        '''
         # remove some of the dominating class
         nr_ones = np.sum(y_train)
         nr_zeroes = len(y_train) - np.sum(y_train)
@@ -65,7 +75,7 @@ class ClickbaitModel(object):
         x_train = x_train[keep_indices]
 
         # supersample clickbait class
-        '''while np.sum(y_train) != len(y_train) - np.sum(y_train):
+        while np.sum(y_train) != len(y_train) - np.sum(y_train):
             index = np.random.randint(len(y_train))
             if (y_train[index] == 1 and nr_ones < nr_zeroes) or \
                 (y_train[index] == 0 and nr_ones > nr_zeroes):
