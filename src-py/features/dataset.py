@@ -46,7 +46,7 @@ class ClickbaitDataset(object):
 
     def add_tweet(self, tweet_id, post_timestamp='', post_text=[], post_media=[], target_title='',
                   target_description='', target_keywords='', target_paragraphs=[], target_captions=[]):
-        self.dataset_dict[tweet_id] = {'postTimestamp': post_timestamp,
+        self.dataset_dict[tweet_id] = {'postTimestamp': [post_timestamp],
                                        'postText': post_text,
                                        'postMedia': post_media,
                                        'targetTitle': target_title,
@@ -67,8 +67,12 @@ class ClickbaitDataset(object):
 
     def get_x(self, field_name):
         # TODO dont just use the first element in the text
-        return np.asarray([self.dataset_dict[key][field_name][0]
-                           for key in sorted(self.dataset_dict.keys())])
+        _result = []
+        for key in sorted(self.dataset_dict.keys()):
+            _result.append(''.join(self.dataset_dict[key][field_name]))
+        return _result
+        '''return np.asarray([self.dataset_dict[key][field_name][0]
+                           for key in sorted(self.dataset_dict.keys())])'''
 
     def size(self):
         return len(self.dataset_dict.keys())

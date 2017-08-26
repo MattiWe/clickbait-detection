@@ -4,11 +4,14 @@ import numpy as np
 # from itertools import combinations
 from collections import deque
 # import random
+from math import ceil
 
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk import word_tokenize
-from nltk.tokenize import TweetTokenizer
+from nltk.tokenize import TweetTokenizer, sent_tokenize
+from nltk.corpus import cmudict
 import string
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 from scipy.sparse import csc_matrix
 
@@ -44,7 +47,7 @@ def preprocess_tokenize(text):
 
 
 class Feature(object):
-    def __init__(self, featue):
+    def __init__(self, feature=None):
         self.feature = feature
 
     def aslist(self):
@@ -55,12 +58,8 @@ class Feature(object):
 
 
 class NGramFeature(Feature):
-    def __init__(self, vectorizer, analyzer='word', n=None, o=None, fit_data=None, vocab=None):
-        if n is None:
-            n, o = 1, 1
-        elif o is None:
-            o = n
-        self.vectorizer = vectorizer(preprocessor=preprocess, tokenizer=tokenize, ngram_range=(n, o), vocabulary=vocab)
+    def __init__(self, vectorizer, analyzer='word', n=1, o=1, fit_data=None, vocab=None):
+        self.vectorizer = vectorizer(analyzer=analyzer, preprocessor=preprocess, tokenizer=tokenize, ngram_range=(n, o), vocabulary=vocab)
         if fit_data is not None:
             self.vectorizer_fit = self.vectorizer.fit(fit_data)
 
@@ -68,20 +67,21 @@ class NGramFeature(Feature):
         return self.vectorizer_fit.vocabulary_
 
     def fit(self, data):
-        self.vectorizer_fit.fit(data)
+        self.vectorizer_fit = self.vectorizer.fit(fit_data)
 
     def assparse(self, data):
         return csc_matrix(self.vectorizer_fit.transform(data))
 
 
 class ContainsWordsFeature(Feature):
-    def __init__(self, wordlist, only_words=True, ratio=False):
+    def __init__(self, wordlist, only_words=True, ratio=False, binary=False):
         self.wordlist = wordlist
         if isinstance(wordlist, str):
             with open(wordlist, "r") as inf:
                 self.wordlist = [x.strip() for x in inf.readlines()]
         self.only_words = only_words
         self.ratio = ratio
+        self.binary = binary
 
     def assparse(self, data):
         _result = deque()
@@ -98,7 +98,102 @@ class ContainsWordsFeature(Feature):
                 _result.append(_tmp if not self.ratio else _tmp / len(_processed))
             except ZeroDivisionError:
                 _result.append(0)
+        if self.binary:
+            _result = [0 if i == 0 else 1 for i in _result]
 
+        return np.asarray(list(_result))[:, np.newaxis]
+
+
+class FleschKincaidScore(Feature):
+    def __init__(self):
+        self.prondict = cmudict.dict()
+
+    def assparse(self, data):
+        def get_pron(word):
+            try:
+                return self.prondict[word][0]
+            except KeyError:
+                return [['1']]
+        _result = []
+        for tweet in data:
+            _processed = [preprocess(x) for x in tokenize(tweet)]
+            word_count = len(_processed)
+            sent_count = len(sent_tokenize(tweet))
+            syllable_count = np.sum([len([s for s in get_pron(word)
+                                          if (s[-1]).isdigit()])
+                                     for word in _processed])
+            try:
+                _result.append(0.39 *
+                               (word_count / sent_count) + 11.8 *
+                               (syllable_count / word_count) - 15.59)
+            except ZeroDivisionError:
+                _result.append(-3.4)  # thats the minimal possible FK-Score
+
+        return np.asarray(list(_result))[:, np.newaxis]
+
+
+class StartsWithNumber(Feature):
+    def assparse(self, data):
+        _result = []
+        for tweet in data:
+            _processed = [preprocess(x) for x in tokenize(tweet)]
+            try:
+                _result.append(1 if _processed[0].isdigit() else 0)
+            except IndexError:
+                _result.append(0)
+        return np.asarray(list(_result))[:, np.newaxis]
+
+
+class LongestWordLength(Feature):
+    def assparse(self, data):
+        _result = []
+        for tweet in data:
+            _processed_len = [len(preprocess(x)) for x in tokenize(tweet)]
+            try:
+                _result.append(max(_processed_len))
+            except ValueError:
+                _result.append(0)
+        return np.asarray(list(_result))[:, np.newaxis]
+
+
+class MeanWordLength(Feature):
+    def assparse(self, data):
+        _result = []
+        for tweet in data:
+            _processed_len = [len(preprocess(x)) for x in tokenize(tweet)]
+            try:
+                _result.append(sum(_processed_len) / len(_processed_len))
+            except ZeroDivisionError:
+                _result.append(0)
+        return np.asarray(list(_result))[:, np.newaxis]
+
+
+class CharacterSum(Feature):
+    def assparse(self, data):
+        _result = []
+        for tweet in data:
+            _processed = [preprocess(x) for x in tokenize(tweet)]
+            try:
+                _result.append(sum(len(x) for x in _processed))
+            except ZeroDivisionError:
+                _result.append(0)
+        return np.asarray(list(_result))[:, np.newaxis]
+
+
+class HasMediaAttached(Feature):
+    def assparse(self, data):
+        _result = []
+        for tweet in data:
+            _result.append(1 if tweet else 0)
+        return np.asarray(list(_result))[:, np.newaxis]
+
+
+class PartOfDay(Feature):
+    def assparse(self, data):
+        _result = []
+        for tweet in data:
+            d = tweet.split(':')[0]
+            _result.append(ceil(int(d.split()[3]) / 6))
         return np.asarray(list(_result))[:, np.newaxis]
 
 
