@@ -15,9 +15,8 @@ import pickle
 import os
 
 
-def build_new_features():
+def build_new_features(cbd):
     # get list of scores and a list of the postTexts
-    cbd = ClickbaitDataset("../clickbait17-validation-170630/instances.jsonl", "../clickbait17-validation-170630/truth.jsonl")
     common_phrases = ft.ContainsWordsFeature("wordlists/TerrierStopWordList.txt", ratio=True)
     char_3grams = ft.NGramFeature(TfidfVectorizer, o=3, analyzer='char', fit_data=cbd.get_x('postText'))
     word_3grams = ft.NGramFeature(TfidfVectorizer, o=3, fit_data=cbd.get_x('postText'))
@@ -62,12 +61,13 @@ def build_new_features():
 
     print('building')
     f_builder.build(cbd, split=True)
-    f_builder.save("feature_builder.pkl")
+    pickle.dump(obj=f_builder, file=open("feature_builder.pkl", "wb"))
     return f_builder
 
 
-# f_builder = build_new_features()
-f_builder = pickle.load(open("features/feature_builder.pkl", "rb"))
+cbd = ClickbaitDataset("../clickbait17-validation-170630/instances.jsonl", "../clickbait17-validation-170630/truth.jsonl")
+# f_builder = build_new_features(cbd)
+f_builder = pickle.load(open("feature_builder.pkl", "rb"))
 x, x2, y, y2 = f_builder.build_features
 # x = f_builder.build(cbd)
 # y = cbd.get_y()
@@ -93,7 +93,7 @@ cbm = ClickbaitModel()
 ev_function = cbm.eval_regress
 # cbm.regress(x, y, Ridge(alpha=3.5, solver="sag"), evaluate=False)
 # cbm.save("model_trained.pkl")
-# cbm.load("model_trained.pkl")
+cbm.load("model_trained.pkl")
 y_predict = cbm.predict(x2)
 ev_function(y2, y_predict)
 

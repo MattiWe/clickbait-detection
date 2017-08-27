@@ -39,9 +39,6 @@ class FeatureBuilder(object):
         self.build_features = _result
         return _result
 
-    def save(self, filename):
-        pickle.dump(obj=self, file=open(filename, "wb"))
-
 
 if __name__ == "__main__":
     pass
