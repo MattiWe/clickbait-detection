@@ -112,3 +112,5 @@ annotations.jsonl
 *.npz
 *.pdf
 *.pkl
+out/
+wordlists/
