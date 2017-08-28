@@ -114,5 +114,6 @@ list_of_tweet_texts.txt
 *.pdf
 *.pkl
 src-py/out/*
+src-py/out_few_features/*
 src-py/wordlists_raw/*
 src-py/wordlists/*
