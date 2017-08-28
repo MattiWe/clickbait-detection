@@ -109,8 +109,10 @@ clickbait17-testsample-170720/*
 metastore_db/*
 old/*
 annotations.jsonl
+list_of_tweet_texts.txt
 *.npz
 *.pdf
 *.pkl
-out/
-wordlists/
+src-py/out/*
+src-py/wordlists_raw/*
+src-py/wordlists/*
