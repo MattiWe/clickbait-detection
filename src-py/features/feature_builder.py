@@ -32,7 +32,7 @@ class FeatureBuilder(object):
         for f in self.features:
             if isinstance(f[0], Feature):
                 _result = push(_result, f[0].assparse(data.get_x(f[1])))
-        # TODO safe option right here
+
         if split:
             self.build_features = train_test_split(_result, np.asarray(data.get_y()).T, random_state=42)
             return self.build_features

@@ -11,29 +11,13 @@ from features.dataset import ClickbaitDataset
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from copy import deepcopy
+import pickle
 
 # get list of scores and a list of the postTexts
 cbd = ClickbaitDataset("../../clickbait17-validation-170630/instances.jsonl", "../../clickbait17-validation-170630/truth.jsonl")
-common_phrases = ft.ContainsWordsFeature("../wordlists/TerrierStopWordList.txt", ratio=True)
-char_3grams = ft.NGramFeature(TfidfVectorizer, o=3, analyzer='char', fit_data=cbd.get_x('postText'))
-word_3grams = ft.NGramFeature(TfidfVectorizer, o=3, fit_data=cbd.get_x('postText'))
-# stop_word_count = ContainsWordsFeature(data, wordlist, only_words=True, ratio=False)
 
-stop_word_ratio = ft.ContainsWordsFeature("../wordlists/TerrierStopWordList.txt", ratio=True)
-easy_words_ratio = ft.ContainsWordsFeature("../wordlists/DaleChallEasyWordList.txt", ratio=True)
-mentions_count = ft.ContainsWordsFeature(['@'], only_words=False, ratio=False)
-hashtags_count = ft.ContainsWordsFeature(['#'], only_words=False, ratio=False)
-clickbait_phrases_count = ft.ContainsWordsFeature("../wordlists/DownworthyCommonClickbaitPhrases.txt",
-                                                  only_words=False, ratio=False)
-
-f_builder = FeatureBuilder((char_3grams, 'postText'),
-                           (word_3grams, 'postText'),
-                           (stop_word_ratio, 'postText'),
-                           (easy_words_ratio, 'postText'),
-                           (mentions_count, 'postText'),
-                           (hashtags_count, 'postText'),
-                           (clickbait_phrases_count, 'postText'))
-x_train, x_test, y, y2 = f_builder.build(cbd, split=True)
+f_builder = pickle.load(open("../feature_builder.pkl", "rb"))
+x_train, x_test, y, y2 = f_builder.build_features
 
 x_train = scipy.sparse.csc_matrix(x_train)
 x_test = scipy.sparse.csc_matrix(x_test)

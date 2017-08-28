@@ -66,8 +66,8 @@ def build_new_features(cbd):
 
 
 cbd = ClickbaitDataset("../clickbait17-validation-170630/instances.jsonl", "../clickbait17-validation-170630/truth.jsonl")
-# f_builder = build_new_features(cbd)
-f_builder = pickle.load(open("feature_builder.pkl", "rb"))
+f_builder = build_new_features(cbd)
+# f_builder = pickle.load(open("feature_builder.pkl", "rb"))
 x, x2, y, y2 = f_builder.build_features
 # x = f_builder.build(cbd)
 # y = cbd.get_y()
@@ -91,9 +91,9 @@ cbm.save("cbm_rfr.pkl")
 print('training')
 cbm = ClickbaitModel()
 ev_function = cbm.eval_regress
-# cbm.regress(x, y, Ridge(alpha=3.5, solver="sag"), evaluate=False)
+cbm.regress(x, y, Ridge(alpha=3.5, solver="sag"), evaluate=False)
 # cbm.save("model_trained.pkl")
-cbm.load("model_trained.pkl")
+# cbm.load("model_trained.pkl")
 y_predict = cbm.predict(x2)
 ev_function(y2, y_predict)
 
