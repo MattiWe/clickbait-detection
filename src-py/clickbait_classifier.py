@@ -18,8 +18,8 @@ import os
 def build_new_features(cbd):
     # get list of scores and a list of the postTexts
     common_phrases = ft.ContainsWordsFeature("wordlists/TerrierStopWordList.txt", ratio=True)
-    char_3grams = ft.NGramFeature(TfidfVectorizer, o=3, analyzer='char', fit_data=cbd.get_x('postText'))
-    word_3grams = ft.NGramFeature(TfidfVectorizer, o=3, fit_data=cbd.get_x('postText'))
+    # char_3grams = ft.NGramFeature(TfidfVectorizer, o=3, analyzer='char', fit_data=cbd.get_x('postText'))
+    word_3grams = ft.NGramFeature(TfidfVectorizer, o=1, fit_data=cbd.get_x('postText'))
     # stop_word_count = ContainsWordsFeature(data, wordlist, only_words=True, ratio=False)
 
     stop_word_ratio = ft.ContainsWordsFeature("wordlists/TerrierStopWordList.txt", ratio=True)
@@ -38,8 +38,7 @@ def build_new_features(cbd):
     has_media_attached = ft.HasMediaAttached()
     part_of_day = ft.PartOfDay()
 
-    f_builder = FeatureBuilder((char_3grams, 'postText'),
-                               (word_3grams, 'postText'),
+    f_builder = FeatureBuilder((word_3grams, 'postText'),  # (char_3grams, 'postText'),
                                (hashtags_count, 'postText'),
                                (mentions_count, 'postText'),
                                (flesch_kincait_score, 'postText'),

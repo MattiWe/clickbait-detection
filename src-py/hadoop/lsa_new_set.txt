@@ -1,0 +1,148 @@
+full set regression
+Explained variance: 0.3987579661026913
+Median absolute error: 0.12884733707983406
+R2 score: 0.39861208678328164
+Mean absolute error: 0.15419781405291433
+Mean squared error: 0.037630503752052
+Normalized mean squared error: 0.6013879132167184
+Random Forest
+Explained variance: 0.4120312951975832
+Median absolute error: 0.12000000000266664
+R2 score: 0.41024038312369104
+Mean absolute error: 0.14859170579718134
+Mean squared error: 0.03690288911356149
+Normalized mean squared error: 0.5897596168763091
+tsvd regression
+2
+Explained variance: 0.14245901806788097
+Median absolute error: 0.166050534487667
+R2 score: 0.1424489238738964
+Mean absolute error: 0.18898664021871972
+Mean squared error: 0.05365934079907357
+Normalized mean squared error: 0.8575510761261036
+5
+Explained variance: 0.19076453310669417
+Median absolute error: 0.16104525691825794
+R2 score: 0.19076153112116223
+Mean absolute error: 0.1823327203109123
+Mean squared error: 0.0506362874447663
+Normalized mean squared error: 0.8092384688788379
+10
+Explained variance: 0.21156077194960343
+Median absolute error: 0.15853880334525128
+R2 score: 0.21153179089364071
+Mean absolute error: 0.17970567814236077
+Mean squared error: 0.04933663488919908
+Normalized mean squared error: 0.7884682091063593
+15
+Explained variance: 0.22244735550287875
+Median absolute error: 0.15607918186089823
+R2 score: 0.22241930636914042
+Mean absolute error: 0.17837448283894292
+Mean squared error: 0.048655372956680536
+Normalized mean squared error: 0.7775806936308596
+25
+Explained variance: 0.2246209064391289
+Median absolute error: 0.15552402961168904
+R2 score: 0.224601120625172
+Mean absolute error: 0.1782843656397866
+Mean squared error: 0.04851885080892282
+Normalized mean squared error: 0.775398879374828
+50
+Explained variance: 0.2533077992394267
+Median absolute error: 0.15255405583503245
+R2 score: 0.2532907320487151
+Mean absolute error: 0.17476584551131932
+Mean squared error: 0.04672366253428002
+Normalized mean squared error: 0.7467092679512849
+75
+Explained variance: 0.29554857261086986
+Median absolute error: 0.14403184525802037
+R2 score: 0.29551598194398
+Mean absolute error: 0.16850489815943565
+Mean squared error: 0.04408151195277591
+Normalized mean squared error: 0.7044840180560201
+100
+Explained variance: 0.3047059143808949
+Median absolute error: 0.14260661762437873
+R2 score: 0.304683951883976
+Mean absolute error: 0.1675587309707702
+Mean squared error: 0.043507846736625486
+Normalized mean squared error: 0.695316048116024
+150
+Explained variance: 0.34088851030025036
+Median absolute error: 0.13830931976104494
+R2 score: 0.34083986006626965
+Mean absolute error: 0.16224740675467125
+Mean squared error: 0.04124547163960163
+Normalized mean squared error: 0.6591601399337303
+200
+Explained variance: 0.373656289970579
+Median absolute error: 0.13139489115652048
+R2 score: 0.3736306581781854
+Mean absolute error: 0.15743100676983812
+Mean squared error: 0.039193660779647484
+Normalized mean squared error: 0.6263693418218147
+250
+Explained variance: 0.40710382950802293
+Median absolute error: 0.12739493898321835
+R2 score: 0.40707765370912186
+Mean absolute error: 0.1532814343889736
+Mean squared error: 0.03710078983368917
+Normalized mean squared error: 0.5929223462908783
+300
+Explained variance: 0.41414169716177096
+Median absolute error: 0.1272115624190372
+R2 score: 0.4141116464556138
+Mean absolute error: 0.15237958335884694
+Mean squared error: 0.036660653468089506
+Normalized mean squared error: 0.5858883535443863
+350
+Explained variance: 0.4169454926178665
+Median absolute error: 0.12656693254675505
+R2 score: 0.41691624675939176
+Mean absolute error: 0.15198928989757446
+Mean squared error: 0.036485161876165385
+Normalized mean squared error: 0.5830837532406082
+400
+Explained variance: 0.41893495847330786
+Median absolute error: 0.12591355969531437
+R2 score: 0.4189041460786105
+Mean absolute error: 0.15173769114290525
+Mean squared error: 0.0363607735219159
+Normalized mean squared error: 0.5810958539213895
+450
+Explained variance: 0.42010366732787674
+Median absolute error: 0.1260061654449388
+R2 score: 0.4200728127795207
+Mean absolute error: 0.15159785200089124
+Mean squared error: 0.036287646816661266
+Normalized mean squared error: 0.5799271872204794
+500
+Explained variance: 0.4213736352998143
+Median absolute error: 0.12599866054125883
+R2 score: 0.42134222833899027
+Mean absolute error: 0.15153083359078962
+Mean squared error: 0.03620821597689259
+Normalized mean squared error: 0.5786577716610097
+550
+Explained variance: 0.42229738135820283
+Median absolute error: 0.12624497041604762
+R2 score: 0.4222684976217842
+Mean absolute error: 0.1513723289969568
+Mean squared error: 0.036150256747989655
+Normalized mean squared error: 0.5777315023782158
+600
+Explained variance: 0.4234777271793375
+Median absolute error: 0.1258409484457968
+R2 score: 0.4234435836571143
+Mean absolute error: 0.15120487413774147
+Mean squared error: 0.03607672836723961
+Normalized mean squared error: 0.5765564163428857
+650
+Explained variance: 0.4235583674020389
+Median absolute error: 0.12591583192764733
+R2 score: 0.4235228088950078
+Mean absolute error: 0.15119530439256632
+Mean squared error: 0.03607177102515426
+Normalized mean squared error: 0.5764771911049922
