@@ -28,21 +28,24 @@ ev_function = cbm.eval_regress
 f_builder = pickle.load(open("../feature_builder.pkl", "rb"))
 x, x2, y, y2 = f_builder.build_features
 
-'''print("full set regression")
+print(x.shape)
+
+print("full set regression")
 cbm.regress(x, y, Ridge(alpha=3.5, solver="sag"), evaluate=False)
 y_predict = cbm.predict(x2)
 ev_function(y2, y_predict)
-
+'''
 # A Decision Trees (ensemble techniques)
 print("Random Forest")
 cbm.regress(x, y, "RandomForestRegressor", evaluate=False)
 y_predict = cbm.predict(x2)
-ev_function(y2, y_predict)'''
+ev_function(y2, y_predict)
 
 # B PCA selection
-'''print("tsvd regression")
+print("tsvd regression")
+'''
 sv_list = [2, 5, 10, 15, 25, 50, 75, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700]
-
+'''
 for v in sv_list:
     print(v)
     tsvd = TruncatedSVD(v)
@@ -56,9 +59,9 @@ for v in sv_list:
 # 1. concatenate all hadoop out files
 print("read hadoop out files")
 _result = []
-out_files = os.listdir("../out")
+out_files = os.listdir("../out_few_features")
 for outfile in out_files:
-    with open("../out/" + outfile, 'r') as of:
+    with open("../out_few_features/" + outfile, 'r') as of:
         _result += [json.loads(x) for x in of.readlines()]
 
 # {"runs": [{"removedIndex", "runNumber", "mse"}], "selectedFeatures": [binary array]}
@@ -83,12 +86,26 @@ for r in _index_to_mse_drop:
     _index_to_mse_drop_average.append(np.mean(r2))
     _index_to_mse_drop_max.append(np.amax(r2))
     _index_to_mse_drop_min.append(np.amin(r2))
-
+'''
 fig = plt.figure()
 p2 = fig.add_subplot(111)
 p2.plot(_index_to_mse_drop_average)
 p2.plot(_index_to_mse_drop_max)
 p2.plot(_index_to_mse_drop_min)
-plt.show()
+plt.show()'''
+
+# TODO build reduced feature sets and train/predict
+# 1. use highest mse
+_mean_indices = sorted(range(len(_index_to_mse_drop_average)), key=lambda x: _index_to_mse_drop_average[x])
+for feature_size in sv_list:
+    print("{} best features by mse drop mean".format(feature_size))
+    indices = _mean_indices[-feature_size*100:]
+    x_train_new = scipy.sparse.csc_matrix(x)[:, indices]
+    x_test_new = scipy.sparse.csc_matrix(x2)[:, indices]
+    cbm.regress(x_train_new, y, Ridge(alpha=3.5, solver="sag"), evaluate=False)
+    y_predict = cbm.predict(x_test_new)
+    ev_function(y2, y_predict)
+
+
 
 # TODO find indices with high min/max spread -> candidates for interactions

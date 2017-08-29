@@ -11,7 +11,8 @@ reducer="hadoop/hadoop_reducer.py"
 
 # 2. run mapreduce
 hadoop jar "$HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-2.7.2.jar" \
-       -D mapred.reduce.tasks=1000 \
+       -D mapred.reduce.tasks=500 \
+       -D stream.map.output.field.separator=? \
        -file $mapper -mapper $mapper \
        -file $reducer -reducer $reducer \
        -file "hadoop/x_test.npz" \
@@ -21,6 +22,7 @@ hadoop jar "$HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-2.7.2.jar" \
        -input $input_directory \
        -output $out_directory
 
+       # -D mapred.task.timeout=1800000 \
        # -files "hadoop" \
 # 3. fetch results and update input files
 # hadoop fs -cat $out_directory/* # TODO

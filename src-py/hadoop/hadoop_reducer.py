@@ -11,11 +11,14 @@ sys.path.append('.')
 # input comes from STDIN
 for line in sys.stdin:
     try:
+        print(line)
         # init variables once
-        line = line.split('\t')
-        _line = json.loads(line[1])
-        selected_indices_boolean = _line['selectedFeatures']
-        n = 1000
+        __line = line.split('?')
+        _line = json.loads(__line[1])
+        selected_indices_boolean_size = _line['selectedFeatures']
+        selected_indices_boolean_range = range(selected_indices_boolean_size)
+        selected_indices_boolean = [1] * selected_indices_boolean_size
+        n = 10
         # load x, y from file
         x_train_arrays = np.load("x_train.npz")
         x_train = scipy.sparse.csc_matrix((x_train_arrays['data'], x_train_arrays['indices'], x_train_arrays['indptr']), shape=x_train_arrays['shape'])
@@ -27,19 +30,17 @@ for line in sys.stdin:
         y_test = np.load('y_test.npz')['data']
 
         for i in range(n):
-            index = random.choice(range(len(selected_indices_boolean)))
-            while selected_indices_boolean[index] == 0:
-                try:
-                    index += 1
-                except IndexError:
-                    index = random.choice(range(len(selected_indices_boolean)))
+            index = random.choice(selected_indices_boolean_range)
+
+            if selected_indices_boolean[index] == 0:
+                continue
 
             selected_indices_boolean[index] = 0
             # construct reduced matrices
 
             # remove columns
-            x_train_current = x_train[:, [x for x in range(len(selected_indices_boolean)) if selected_indices_boolean[x] == 1]]
-            x_test_current = x_test[:, [x for x in range(len(selected_indices_boolean)) if selected_indices_boolean[x] == 1]]
+            x_train_current = x_train[:, [x for x in selected_indices_boolean_range if selected_indices_boolean[x] == 1]]
+            x_test_current = x_test[:, [x for x in selected_indices_boolean_range if selected_indices_boolean[x] == 1]]
             # learn the model with reduced matrices
             model = Ridge(alpha=3.5, solver="sag")
             model.fit(x_train_current, y_train)
@@ -49,6 +50,7 @@ for line in sys.stdin:
             # write to dict and print to stdout
             _line["runs"].append({"runNumber": i, "removedIndex": index, "mse": mse})
             sys.stderr.write("reporter:counter:Iterations,Complete,1\n")
+            # sys.stderr.write("reporter:status:Iteration_Complete\n")
 
         _line['selectedFeatures'] = selected_indices_boolean
         print(json.dumps(_line))
