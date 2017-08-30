@@ -36,6 +36,6 @@ x_train = scipy.sparse.csc_matrix((x_train_arrays['data'], x_train_arrays['indic
 
 with open("initial_feature_select.jsonl", 'w') as of:
     for i in range(1000):
-        of.write("{}?{}".format(i, json.dumps({"selectedFeatures": int(x_train.shape[1]), "runs": []})))
+        of.write("{}?{}".format(i, json.dumps({"selectedFeatures": [1] * int(x_train.shape[1]), "runs": []})))
         if i != 999:
             of.write("\n")
