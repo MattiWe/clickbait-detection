@@ -26,12 +26,12 @@ class FeatureBuilder(object):
                 result = f
             else:
                 result = hstack((_result, f))
-            self.feature_names += [str(type(f)) + str(index) for index in range(f.shape[1])]
             return result
 
         for f in self.features:
             if isinstance(f[0], Feature):
                 _result = push(_result, f[0].assparse(data.get_x(f[1])))
+                self.feature_names += f[0].name
 
         if split:
             self.build_features = train_test_split(_result, np.asarray(data.get_y()).T, random_state=42)

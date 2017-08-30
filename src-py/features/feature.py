@@ -47,8 +47,10 @@ def preprocess_tokenize(text):
 
 
 class Feature(object):
+
     def __init__(self, feature=None):
         self.feature = feature
+        self.name = [type(self)]
 
     def aslist(self):
         return self.feature
@@ -59,15 +61,19 @@ class Feature(object):
 
 class NGramFeature(Feature):
     def __init__(self, vectorizer, analyzer='word', n=1, o=1, fit_data=None, vocab=None):
-        self.vectorizer = vectorizer(analyzer=analyzer, preprocessor=preprocess, tokenizer=tokenize, ngram_range=(n, o), vocabulary=vocab)
+        self.vectorizer = vectorizer(analyzer=analyzer, preprocessor=preprocess,
+                                     tokenizer=tokenize, ngram_range=(n, o), vocabulary=vocab)
         if fit_data is not None:
-            self.vectorizer_fit = self.vectorizer.fit(fit_data)
+            self.fit(fit_data)
 
     def get_vocab(self):
         return self.vectorizer_fit.vocabulary_
 
     def fit(self, data):
-        self.vectorizer_fit = self.vectorizer.fit(fit_data)
+        self.vectorizer_fit = self.vectorizer.fit(data)
+        self.name = [None] * len(self.vectorizer_fit.vocabulary_)
+        for key, value in self.vectorizer_fit.vocabulary_.items():
+            self.name[value] = key
 
     def assparse(self, data):
         return csc_matrix(self.vectorizer_fit.transform(data))
@@ -82,6 +88,7 @@ class ContainsWordsFeature(Feature):
         self.only_words = only_words
         self.ratio = ratio
         self.binary = binary
+        self.name = [str(wordlist)]
 
     def assparse(self, data):
         _result = deque()
@@ -105,8 +112,10 @@ class ContainsWordsFeature(Feature):
 
 
 class FleschKincaidScore(Feature):
+
     def __init__(self):
         self.prondict = cmudict.dict()
+        self.name = ["Flesch-Kincaid Score"]
 
     def assparse(self, data):
         def get_pron(word):
