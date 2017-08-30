@@ -11,14 +11,13 @@ sys.path.append('.')
 # input comes from STDIN
 for line in sys.stdin:
     try:
-        print(line)
         # init variables once
-        __line = line.split('?')
+        __line = line.split('\t')
         _line = json.loads(__line[1])
-        selected_indices_boolean_size = _line['selectedFeatures']
+        selected_indices_boolean_size = len(_line['selectedFeatures'])
         selected_indices_boolean_range = range(selected_indices_boolean_size)
-        selected_indices_boolean = [1] * selected_indices_boolean_size
-        n = 10
+        selected_indices_boolean = _line['selectedFeatures']
+        n = 500
         # load x, y from file
         x_train_arrays = np.load("x_train.npz")
         x_train = scipy.sparse.csc_matrix((x_train_arrays['data'], x_train_arrays['indices'], x_train_arrays['indptr']), shape=x_train_arrays['shape'])
@@ -30,12 +29,10 @@ for line in sys.stdin:
         y_test = np.load('y_test.npz')['data']
 
         for i in range(n):
-            index = random.choice(selected_indices_boolean_range)
+            index = random.sample(selected_indices_boolean_range, 10)
 
-            if selected_indices_boolean[index] == 0:
-                continue
-
-            selected_indices_boolean[index] = 0
+            for j in index:
+                selected_indices_boolean[j] = 0
             # construct reduced matrices
 
             # remove columns
@@ -49,8 +46,8 @@ for line in sys.stdin:
 
             # write to dict and print to stdout
             _line["runs"].append({"runNumber": i, "removedIndex": index, "mse": mse})
-            sys.stderr.write("reporter:counter:Iterations,Complete,1\n")
-            # sys.stderr.write("reporter:status:Iteration_Complete\n")
+            sys.stderr.write("reporter:counter:iterations,complete,1\n")
+            sys.stderr.flush()
 
         _line['selectedFeatures'] = selected_indices_boolean
         print(json.dumps(_line))

@@ -13,6 +13,9 @@ reducer="hadoop/hadoop_reducer.py"
 hadoop jar "$HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-2.7.2.jar" \
        -D mapred.reduce.tasks=500 \
        -D stream.map.output.field.separator=? \
+       -D yarn.app.mapreduce.am.resource.cpu-vcores=8 \
+       -D mapreduce.reduce.cpu.vcores=2 \
+       -D mapreduce.reduce.memory.mb=8192	\
        -file $mapper -mapper $mapper \
        -file $reducer -reducer $reducer \
        -file "hadoop/x_test.npz" \
