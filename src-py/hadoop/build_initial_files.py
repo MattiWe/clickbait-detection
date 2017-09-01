@@ -17,8 +17,8 @@ import pickle
 cbd = ClickbaitDataset("../../clickbait17-validation-170630/instances.jsonl",
                        "../../clickbait17-validation-170630/truth.jsonl")
 
-f_builder = pickle.load(open("../feature_builder_w13_c00_2.pkl", "rb"))
-x_train, x_test, y, y2 = f_builder.build_features
+f_builder = pickle.load(open("../feature_builder_w_13_c13_reduced.pkl", "rb"))
+x_train, x_test, y, y2 = f_builder.build_features_split
 
 x_train = scipy.sparse.csc_matrix(x_train)
 x_test = scipy.sparse.csc_matrix(x_test)

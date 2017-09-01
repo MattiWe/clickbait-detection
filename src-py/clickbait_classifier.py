@@ -77,9 +77,9 @@ def build_new_features(cbd):
 
 cbd = ClickbaitDataset("../clickbait17-validation-170630/instances.jsonl",
                        "../clickbait17-validation-170630/truth.jsonl")
-f_builder = build_new_features(cbd)
-# f_builder = pickle.load(open("feature_builder_w_13_c13_copmlete_co3.pkl", "rb"))
-x, x2, y, y2 = f_builder.build_features_split
+# f_builder = build_new_features(cbd)
+f_builder = pickle.load(open("feature_builder_w_13_c13_copmlete_co3.pkl", "rb"))
+x = f_builder.build_features
 print(x.shape)
 # y = cbd.get_y()
 

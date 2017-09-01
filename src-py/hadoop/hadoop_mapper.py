@@ -3,7 +3,7 @@ import sys
 import json
 import random
 
-iterations_per_model = 10
+iterations_per_model = 500
 sample_size = 1
 for line in sys.stdin:
     # build subsets, pass the configuration to reducer
