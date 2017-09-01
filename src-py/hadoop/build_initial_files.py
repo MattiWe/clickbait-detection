@@ -14,9 +14,10 @@ from copy import deepcopy
 import pickle
 
 # get list of scores and a list of the postTexts
-cbd = ClickbaitDataset("../../clickbait17-validation-170630/instances.jsonl", "../../clickbait17-validation-170630/truth.jsonl")
+cbd = ClickbaitDataset("../../clickbait17-validation-170630/instances.jsonl",
+                       "../../clickbait17-validation-170630/truth.jsonl")
 
-f_builder = pickle.load(open("../feature_builder_w13_c00.pkl", "rb"))
+f_builder = pickle.load(open("../feature_builder_w13_c00_2.pkl", "rb"))
 x_train, x_test, y, y2 = f_builder.build_features
 
 x_train = scipy.sparse.csc_matrix(x_train)
@@ -35,7 +36,7 @@ x_train = scipy.sparse.csc_matrix((x_train_arrays['data'], x_train_arrays['indic
 
 
 with open("initial_feature_select.jsonl", 'w') as of:
-    for i in range(1000):
-        of.write("{}?{}".format(i, json.dumps({"selectedFeatures": [1] * int(x_train.shape[1]), "runs": []})))
-        if i != 999:
+    for i in range(500):
+        of.write("{}\t{}".format(i, int(x_train.shape[1])))
+        if i != 499:
             of.write("\n")

@@ -20,6 +20,7 @@ import pickle
 import os
 import time
 import matplotlib.pyplot as plt
+import seaborn
 
 
 def normalized_mean_squared_error(truth, predictions):
@@ -99,30 +100,33 @@ for r in _index_to_mse_drop:
         _index_to_mse_drop_max.append(np.amax(r2))
         _index_to_mse_drop_min.append(np.amin(r2))
     else:
-        print("empty array at index {}".format(len(_index_to_mse_drop_average)+1))
+        print("empty array at index {}".format(len(_index_to_mse_drop_average)-1))
         _index_to_mse_drop_average.append(0)
         _index_to_mse_drop_max.append(0)
         _index_to_mse_drop_min.append(0)
 
-'''
+#_asdict = {x: (_index_to_mse_drop_min[x], _index_to_mse_drop_average[x], _index_to_mse_drop_max[x])
+#           for x in range(len(_index_to_mse_drop_average))}
+print("draw")
+# _pos = np.linspace(0, (len(_index_to_mse_drop_average)+1)/1000, len(_index_to_mse_drop_average))
 fig = plt.figure()
 p2 = fig.add_subplot(111)
-p2.plot(_index_to_mse_drop_max, label="maximum")
-p2.plot(_index_to_mse_drop_min, label="minimum")
-p2.plot(_index_to_mse_drop_average, label="average")
+p2.plot(sorted(_index_to_mse_drop_max), label="maximum")
+p2.plot(sorted(_index_to_mse_drop_min), label="minimum")
+p2.plot(sorted(_index_to_mse_drop_average), label="average")
 p2.set_ylabel('MSE Difference')
 p2.set_xlabel('Feature Index')
 p2.set_title('MSE Changes on Feature Removal')
 p2.legend()
-plt.show()'''
+plt.show()
 
 # TODO build reduced feature sets and train/predict
 # 1. use highest mse
-_mean_indices = sorted(range(len(_index_to_mse_drop_average)), key=lambda x: _index_to_mse_drop_average[x])
+'''_mean_indices = sorted(range(len(_index_to_mse_drop_average)), key=lambda x: _index_to_mse_drop_average[x])
 indices = _mean_indices[:100]
 index_names = f_builder.feature_names
 for i in indices:
-    print(index_names[i])
+    print(index_names[i])'''
 
 '''i = 0.05
 reduced_features = ([], [])

@@ -11,13 +11,14 @@ class FeatureBuilder(object):
     def __init__(self, *args):
         self.features = list(args)
         self.build_features = None
+        self.build_features_split = None
         self.feature_names = None
 
     def add_feature(self, feature, data_field_name):
         self.features.append((feature, data_field_name))
         return self
 
-    def build(self, data, split=False, save=False):
+    def build(self, data, save=False):
         _result = None
         self.feature_names = []
 
@@ -32,12 +33,11 @@ class FeatureBuilder(object):
             if isinstance(f[0], Feature):
                 _result = push(_result, f[0].assparse(data.get_x(f[1])))
                 self.feature_names += f[0].name
-
-        if split:
-            self.build_features = train_test_split(_result, np.asarray(data.get_y()).T, random_state=42)
-            return self.build_features
+        try:
+            self.build_features_split = train_test_split(_result, np.asarray(data.get_y()).T, random_state=42)
+        except Exception:
+            self.build_features_split = None
         self.build_features = _result
-        return _result
 
 
 if __name__ == "__main__":

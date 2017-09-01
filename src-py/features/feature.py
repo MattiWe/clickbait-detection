@@ -10,6 +10,7 @@ from nltk.stem.wordnet import WordNetLemmatizer
 from nltk import word_tokenize
 from nltk.tokenize import TweetTokenizer, sent_tokenize
 from nltk.corpus import cmudict
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import string
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -22,6 +23,11 @@ tknzr = TweetTokenizer(strip_handles=True, reduce_len=True)
 def tokenize(text):
     global tknzr
     return [token for token in tknzr.tokenize(text)]  # if token not in string.punctuation]
+
+
+def word_ngram_tokenize(text):
+    global tknzr
+    return [token for token in tknzr.tokenize(text) if token not in [',', '.', '!', '?']]
 
 
 def pos_tokenize(text):
@@ -60,9 +66,9 @@ class Feature(object):
 
 
 class NGramFeature(Feature):
-    def __init__(self, vectorizer, analyzer='word', n=1, o=1, fit_data=None, vocab=None):
+    def __init__(self, vectorizer, analyzer='word', n=1, o=1, cutoff=1, fit_data=None, vocab=None):
         self.vectorizer = vectorizer(analyzer=analyzer, preprocessor=preprocess,
-                                     tokenizer=tokenize, ngram_range=(n, o), vocabulary=vocab)
+                                     tokenizer=tokenize, min_df=cutoff, ngram_range=(n, o), vocabulary=vocab)
         if fit_data is not None:
             self.fit(fit_data)
 
@@ -204,6 +210,21 @@ class PartOfDay(Feature):
             d = tweet.split(':')[0]
             _result.append(ceil(int(d.split()[3]) / 6))
         return np.asarray(list(_result))[:, np.newaxis]
+
+
+class SentimentPolarity(Feature):
+    def __init__(self):
+        self.sid = SentimentIntensityAnalyzer()
+        self.name = ["Sentiment Polarity"]
+
+    def assparse(self, data):
+        _result = []
+        for tweet in data:
+            _processed = tokenize(tweet)
+            try:
+                _result.append(sid.polarity_scores(" ".join(_processed))["compound"])
+            except Exception:
+                _result.append(0)
 
 
 if __name__ == "__main__":
