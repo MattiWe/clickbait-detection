@@ -101,11 +101,7 @@ ENV/
 .mypy_cache/
 
 # dataset
-clickbait17-train-170331/*
-clickbait17-test-170729/*
-clickbait17-validation-170616/*
-clickbait17-validation-170630/*
-clickbait17-testsample-170720/*
+clickbait17*
 metastore_db/*
 old/*
 annotations.jsonl
@@ -113,8 +109,5 @@ list_of_tweet_texts.txt
 *.npz
 *.pdf
 *.pkl
-src-py/out/*
-src-py/out_backup/*
-src-py/out_few_features/*
-src-py/wordlists_raw/*
-src-py/wordlists/*
+src-py/out*
+src-py/wordlists*
