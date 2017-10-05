@@ -1,9 +1,6 @@
 #!/usr/bin/python3
 import numpy as np
-# import json
-# from itertools import combinations
 from collections import deque
-# import random
 from math import ceil
 
 from nltk.stem.wordnet import WordNetLemmatizer

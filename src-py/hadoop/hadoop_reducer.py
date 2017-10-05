@@ -4,19 +4,25 @@ import sys
 import random
 import sklearn.metrics as skm
 from sklearn.linear_model import Ridge
+from sklearn.model_selection import train_test_split
 import scipy.sparse
 import numpy as np
 sys.path.append('.')
 
 # load x, y from file
 x_train_arrays = np.load("x_train.npz")
-x_train = scipy.sparse.csc_matrix((x_train_arrays['data'], x_train_arrays['indices'], x_train_arrays['indptr']), shape=x_train_arrays['shape'])
-x_test_arrays = np.load("x_test.npz")
-x_test = scipy.sparse.csc_matrix((x_test_arrays['data'], x_test_arrays['indices'], x_test_arrays['indptr']), shape=x_test_arrays['shape'])
+x = scipy.sparse.csc_matrix((x_train_arrays['data'], x_train_arrays['indices'], x_train_arrays['indptr']), shape=x_train_arrays['shape'])
+
+# x_test_arrays = np.load("x_test.npz")
+# x_test = scipy.sparse.csc_matrix((x_test_arrays['data'], x_test_arrays['indices'], x_test_arrays['indptr']), shape=x_test_arrays['shape'])
 # x_train = scipy.sparse.load_npz('x_train.npz')
 # x_test = scipy.sparse.load_npz('x_test.npz')
-y_train = np.load('y_train.npz')['data']
-y_test = np.load('y_test.npz')['data']
+y = np.load('y_train.npz')['data']
+# y_test = np.load('y_test.npz')['data']
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.33)
+x_train = scipy.sparse.csc_matrix(x_train)
+x_test = scipy.sparse.csc_matrix(x_test)
 model = Ridge(alpha=3.5)
 
 # input comes from STDIN

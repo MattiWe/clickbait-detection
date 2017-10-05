@@ -10,8 +10,6 @@ hadoop jar "$HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-2.7.2.jar" \
        -D mapred.reduce.tasks=1000 \
        -file $mapper -mapper $mapper \
        -file $reducer -reducer $reducer \
-       -file "hadoop/x_test.npz" \
-       -file "hadoop/y_test.npz" \
        -file "hadoop/x_train.npz" \
        -file "hadoop/y_train.npz" \
        -input $input_directory \
